@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import joblib
 
-# ================= FIX: CUSTOM CLASSES =================
+# ================= CUSTOM CLASSES (must match training) =================
 from sklearn.base import BaseEstimator, TransformerMixin
 
 class LogTransformer(BaseEstimator, TransformerMixin):
@@ -105,6 +105,11 @@ with tab2:
 with tab3:
     st.header("Prediction System")
 
+    st.info(
+        f"**Model threshold:** {threshold:.4f}  \n"
+        "Tumor is classified as **Malignant** when the malignant probability ≥ threshold."
+    )
+
     user_input = {}
     for col in feature_cols:
         user_input[col] = st.number_input(col, value=float(df[col].mean()))
@@ -112,18 +117,56 @@ with tab3:
     input_df = pd.DataFrame([user_input])
 
     if st.button("Predict"):
-        prob = full_pipeline.predict_proba(input_df)[0][1]
-        pred = 1 if prob >= threshold else 0
-        benign_prob = 1 - prob
-        malignant_prob = prob
-        if pred == 1:
-            st.error(f"⚠️ Malignant | Probability: {malignant_prob:.4f}")
-        else:
-            st.success(f"✅ Benign | Probability: {benign_prob:.4f}")
+        # prob is always the probability of MALIGNANT (class 1)
+        malignant_prob = full_pipeline.predict_proba(input_df)[0][1]
+        benign_prob = 1.0 - malignant_prob
 
-        fig, ax = plt.subplots()
-        ax.bar(["Benign", "Malignant"], [1-prob, prob])
+        # Apply the tuned threshold
+        pred = 1 if malignant_prob >= threshold else 0
+
+        # ── Result banner ──────────────────────────────────────────────────────
+        st.markdown("---")
+        if pred == 1:
+            st.error(
+                f"⚠️ **Prediction: MALIGNANT**\n\n"
+                f"- Malignant probability : **{malignant_prob:.4f}** ({malignant_prob*100:.1f}%)\n"
+                f"- Benign probability    : **{benign_prob:.4f}** ({benign_prob*100:.1f}%)\n"
+                f"- Decision threshold    : {threshold:.4f}"
+            )
+        else:
+            st.success(
+                f"✅ **Prediction: BENIGN**\n\n"
+                f"- Benign probability    : **{benign_prob:.4f}** ({benign_prob*100:.1f}%)\n"
+                f"- Malignant probability : **{malignant_prob:.4f}** ({malignant_prob*100:.1f}%)\n"
+                f"- Decision threshold    : {threshold:.4f}"
+            )
+
+        # ── Probability bar chart ──────────────────────────────────────────────
+        fig, ax = plt.subplots(figsize=(5, 3))
+        colors = ["#22c55e", "#ef4444"]   # green = benign, red = malignant
+        bars = ax.bar(
+            ["Benign", "Malignant"],
+            [benign_prob, malignant_prob],
+            color=colors,
+            edgecolor="black",
+            width=0.5,
+        )
+        ax.axhline(threshold, color="orange", linestyle="--", linewidth=1.5,
+                   label=f"Threshold = {threshold:.4f}")
+        ax.set_ylim(0, 1)
+        ax.set_ylabel("Probability")
         ax.set_title("Prediction Probability")
+        ax.legend()
+
+        # Annotate bars with exact probabilities
+        for bar, val in zip(bars, [benign_prob, malignant_prob]):
+            ax.text(
+                bar.get_x() + bar.get_width() / 2,
+                val + 0.02,
+                f"{val:.4f}",
+                ha="center", va="bottom", fontsize=10, fontweight="bold"
+            )
+
         st.pyplot(fig)
 
 # ================= TAB 4 =================
@@ -136,7 +179,9 @@ with tab4:
     y_proba = full_pipeline.predict_proba(X)[:, 1]
     y_pred = (y_proba >= threshold).astype(int)
 
-    from sklearn.metrics import roc_curve, precision_recall_curve, confusion_matrix, classification_report, roc_auc_score
+    from sklearn.metrics import (roc_curve, precision_recall_curve,
+                                 confusion_matrix, classification_report,
+                                 roc_auc_score)
 
     fpr, tpr, _ = roc_curve(y, y_proba)
     precision, recall, _ = precision_recall_curve(y, y_proba)
