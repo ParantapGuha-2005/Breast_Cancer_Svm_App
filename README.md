@@ -30,9 +30,9 @@ Given diagnostic records of breast tumour cell nuclei (radius, texture, perimete
 ## 📓 Notebook Contents
 
 The Jupyter Notebook focuses on data preparation and exploratory analysis:
-1. Data Preprocessing — Loads raw `wdbc.data`, assigns standard column names (from `radius_mean` to `fractal_dimension_worst`), drops the redundant `id` column, and exports the clean data to `breast_cancer.csv`.
-2. Exploratory Data Analysis (EDA) — Generates statistical summaries, examines the class distribution between Malignant (`M`) and Benign (`B`) tumours, and visualises numerical features using side-by-side histograms and boxplots.
-3. Custom Feature Engineering — Builds custom Scikit-learn pipeline classes (`LogTransformer`, `FeatureEngineer`, `NumpyToArrayToDataFrame`) that engineer key ratio and interaction variables, including:
+1. **Data Preprocessing** — Loads raw `wdbc.data`, assigns standard column names (from `radius_mean` to `fractal_dimension_worst`), drops the redundant `id` column, and exports the clean data to `breast_cancer.csv`.
+2. **Exploratory Data Analysis (EDA)** — Generates statistical summaries, examines the class distribution between Malignant (`M`) and Benign (`B`) tumours, and visualises numerical features using side-by-side histograms and boxplots.
+3. **Custom Feature Engineering** — Builds custom Scikit-learn pipeline classes (`LogTransformer`, `FeatureEngineer`, `NumpyToArrayToDataFrame`) that engineer key ratio and interaction variables, including:
     - `area_perimeter_ratio` and `compactness_index`
     - `texture_se_x_worst` and `smoothness_se_x_area`
     -  `radius_worst_mean_ratio` and `concavity_worst_mean_ratio`
@@ -41,10 +41,10 @@ The Jupyter Notebook focuses on data preparation and exploratory analysis:
 
 The Streamlit dashboard (app.py) is organised into four interactive tabs:  
 
-- 📊 EDA — Displays dataset dataframes, descriptive statistics, and a visual count plot of the diagnosis distribution (Malignant vs. Benign).  
-- 📈 Visualisations — Allows users to dynamically select numeric features to view side-by-side KDE histograms and boxplots, alongside a complete correlation heatmap.  
-- 🤖 Prediction — Provides interactive numerical inputs for all feature columns. Generates real-time predictions by comparing the model's malignant probability against the tuned threshold, displaying an alert banner and an annotated probability bar chart.  
-- 📉 Evaluation — Showcases the model's performance on the dataset using ROC curves, Precision-Recall curves, a confusion matrix, a full classification report, and the ROC-AUC score.
+- 📊 **EDA** — Displays dataset dataframes, descriptive statistics, and a visual count plot of the diagnosis distribution (Malignant vs. Benign).  
+- 📈 **Visualisations** — Allows users to dynamically select numeric features to view side-by-side KDE histograms and boxplots, alongside a complete correlation heatmap.  
+- 🤖 **Prediction** — Provides interactive numerical inputs for all feature columns. Generates real-time predictions by comparing the model's malignant probability against the tuned threshold, displaying an alert banner and an annotated probability bar chart.  
+- 📉 **Evaluation** — Showcases the model's performance on the dataset using ROC curves, Precision-Recall curves, a confusion matrix, a full classification report, and the ROC-AUC score.
 
 ## ⚙️ Setup & Usage
 
